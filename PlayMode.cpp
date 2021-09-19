@@ -12,10 +12,10 @@
 
 #include <random>
 
-GLuint hexapod_meshes_for_lit_color_texture_program = 0;
+GLuint coffee_meshes_for_lit_color_texture_program = 0;
 Load< MeshBuffer > hexapod_meshes(LoadTagDefault, []() -> MeshBuffer const * {
 	MeshBuffer const *ret = new MeshBuffer(data_path("coffee.pnct"));
-	hexapod_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
+	coffee_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
 	return ret;
 });
 
@@ -28,7 +28,7 @@ Load< Scene > coffee_scene(LoadTagDefault, []() -> Scene const * {
 
 		drawable.pipeline = lit_color_texture_program_pipeline;
 
-		drawable.pipeline.vao = hexapod_meshes_for_lit_color_texture_program;
+		drawable.pipeline.vao = coffee_meshes_for_lit_color_texture_program;
 		drawable.pipeline.type = mesh.type;
 		drawable.pipeline.start = mesh.start;
 		drawable.pipeline.count = mesh.count;
@@ -39,12 +39,12 @@ Load< Scene > coffee_scene(LoadTagDefault, []() -> Scene const * {
 PlayMode::PlayMode() : scene(*coffee_scene) {
 	//get pointers to leg for convenience:
 	for (auto &transform : scene.transforms) {
-		if (transform.name == "Hip.FL") hip = &transform;
+		if (transform.name == "Spoon") spoon = &transform;
 		else if (transform.name == "UpperLeg.FL") upper_leg = &transform;
 		else if (transform.name == "LowerLeg.FL") lower_leg = &transform;
 	}
 
-	//if (hip == nullptr) throw std::runtime_error("Hip not found.");
+	if (spoon == nullptr) throw std::runtime_error("Spoon not found.");
 	//if (upper_leg == nullptr) throw std::runtime_error("Upper leg not found.");
 	//if (lower_leg == nullptr) throw std::runtime_error("Lower leg not found.");
 
