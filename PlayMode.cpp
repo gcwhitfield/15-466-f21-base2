@@ -108,11 +108,22 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				evt.motion.xrel / float(window_size.y),
 				-evt.motion.yrel / float(window_size.y)
 			);
-			camera->transform->rotation = glm::normalize(
-				camera->transform->rotation
-				* glm::angleAxis(-motion.x * camera->fovy, glm::vec3(0.0f, 1.0f, 0.0f))
-				* glm::angleAxis(motion.y * camera->fovy, glm::vec3(1.0f, 0.0f, 0.0f))
-			);
+			/*
+			{ // move the camera according to the mouse movement
+				camera->transform->rotation = glm::normalize(
+					camera->transform->rotation
+					* glm::angleAxis(-motion.x * camera->fovy, glm::vec3(0.0f, 1.0f, 0.0f))
+					* glm::angleAxis(motion.y * camera->fovy, glm::vec3(1.0f, 0.0f, 0.0f))
+				);
+			}
+			*/
+			{ // rotate spoon according to mouse movement
+				spoon->rotation = glm::normalize(
+					spoon->rotation
+					* glm::angleAxis(-motion.x, glm::vec3(0.0f, 1.0f, 0.0f))
+					* glm::angleAxis(motion.y, glm::vec3(1.0f, 0.0f, 0.0f))
+				);
+			}
 			return true;
 		}
 	}
@@ -154,16 +165,16 @@ void PlayMode::update(float elapsed) {
 		if (!down.pressed && up.pressed) move.y = 1.0f;
 
 		//make it so that moving diagonally doesn't go faster:
-		/*
+		
 		if (move != glm::vec2(0.0f)) move = glm::normalize(move) * PlayerSpeed * elapsed;
 
-		glm::mat4x3 frame = lower_leg->make_local_to_world();
+		glm::mat4x3 frame = spoon->make_local_to_world();
 		glm::vec3 right = frame[0];
 		//glm::vec3 up = frame[1];
 		glm::vec3 forward = -frame[2];
 
-		lower_leg->position += move.x * right + move.y * forward;
-		*/
+		spoon->position += move.x * right + move.y * forward;
+		
 	}
 
 	//reset button press counters:
