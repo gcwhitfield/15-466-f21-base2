@@ -125,6 +125,7 @@ void PlayMode::update(float elapsed) {
 	wobble += elapsed / 10.0f;
 	wobble -= std::floor(wobble);
 
+	/*
 	hip->rotation = hip_base_rotation * glm::angleAxis(
 		glm::radians(5.0f * std::sin(wobble * 2.0f * float(M_PI))),
 		glm::vec3(0.0f, 1.0f, 0.0f)
@@ -137,8 +138,9 @@ void PlayMode::update(float elapsed) {
 		glm::radians(10.0f * std::sin(wobble * 3.0f * 2.0f * float(M_PI))),
 		glm::vec3(0.0f, 0.0f, 1.0f)
 	);
+	*/
 
-	//move camera:
+	//move spoon:
 	{
 
 		//combine inputs into a move:
@@ -152,12 +154,12 @@ void PlayMode::update(float elapsed) {
 		//make it so that moving diagonally doesn't go faster:
 		if (move != glm::vec2(0.0f)) move = glm::normalize(move) * PlayerSpeed * elapsed;
 
-		glm::mat4x3 frame = camera->transform->make_local_to_parent();
+		glm::mat4x3 frame = lower_leg->make_local_to_world();
 		glm::vec3 right = frame[0];
 		//glm::vec3 up = frame[1];
 		glm::vec3 forward = -frame[2];
 
-		camera->transform->position += move.x * right + move.y * forward;
+		lower_leg->position += move.x * right + move.y * forward;
 	}
 
 	//reset button press counters:
