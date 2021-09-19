@@ -14,13 +14,13 @@
 
 GLuint hexapod_meshes_for_lit_color_texture_program = 0;
 Load< MeshBuffer > hexapod_meshes(LoadTagDefault, []() -> MeshBuffer const * {
-	MeshBuffer const *ret = new MeshBuffer(data_path("hexapod.pnct"));
+	MeshBuffer const *ret = new MeshBuffer(data_path("coffee.pnct"));
 	hexapod_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
 	return ret;
 });
 
-Load< Scene > hexapod_scene(LoadTagDefault, []() -> Scene const * {
-	return new Scene(data_path("hexapod.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
+Load< Scene > coffee_scene(LoadTagDefault, []() -> Scene const * {
+	return new Scene(data_path("coffee.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
 		Mesh const &mesh = hexapod_meshes->lookup(mesh_name);
 
 		scene.drawables.emplace_back(transform);
@@ -36,20 +36,21 @@ Load< Scene > hexapod_scene(LoadTagDefault, []() -> Scene const * {
 	});
 });
 
-PlayMode::PlayMode() : scene(*hexapod_scene) {
+PlayMode::PlayMode() : scene(*coffee_scene) {
 	//get pointers to leg for convenience:
 	for (auto &transform : scene.transforms) {
 		if (transform.name == "Hip.FL") hip = &transform;
 		else if (transform.name == "UpperLeg.FL") upper_leg = &transform;
 		else if (transform.name == "LowerLeg.FL") lower_leg = &transform;
 	}
-	if (hip == nullptr) throw std::runtime_error("Hip not found.");
-	if (upper_leg == nullptr) throw std::runtime_error("Upper leg not found.");
-	if (lower_leg == nullptr) throw std::runtime_error("Lower leg not found.");
 
-	hip_base_rotation = hip->rotation;
-	upper_leg_base_rotation = upper_leg->rotation;
-	lower_leg_base_rotation = lower_leg->rotation;
+	//if (hip == nullptr) throw std::runtime_error("Hip not found.");
+	//if (upper_leg == nullptr) throw std::runtime_error("Upper leg not found.");
+	//if (lower_leg == nullptr) throw std::runtime_error("Lower leg not found.");
+
+	//hip_base_rotation = hip->rotation;
+	//upper_leg_base_rotation = upper_leg->rotation;
+	//lower_leg_base_rotation = lower_leg->rotation;
 
 	//get pointer to camera for convenience:
 	if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
@@ -145,6 +146,7 @@ void PlayMode::update(float elapsed) {
 
 		//combine inputs into a move:
 		constexpr float PlayerSpeed = 30.0f;
+		(void)PlayerSpeed;
 		glm::vec2 move = glm::vec2(0.0f);
 		if (left.pressed && !right.pressed) move.x =-1.0f;
 		if (!left.pressed && right.pressed) move.x = 1.0f;
@@ -152,6 +154,7 @@ void PlayMode::update(float elapsed) {
 		if (!down.pressed && up.pressed) move.y = 1.0f;
 
 		//make it so that moving diagonally doesn't go faster:
+		/*
 		if (move != glm::vec2(0.0f)) move = glm::normalize(move) * PlayerSpeed * elapsed;
 
 		glm::mat4x3 frame = lower_leg->make_local_to_world();
@@ -160,6 +163,7 @@ void PlayMode::update(float elapsed) {
 		glm::vec3 forward = -frame[2];
 
 		lower_leg->position += move.x * right + move.y * forward;
+		*/
 	}
 
 	//reset button press counters:
