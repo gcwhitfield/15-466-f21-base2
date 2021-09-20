@@ -32,27 +32,54 @@ Load< Scene > coffee_scene(LoadTagDefault, []() -> Scene const * {
 		drawable.pipeline.type = mesh.type;
 		drawable.pipeline.start = mesh.start;
 		drawable.pipeline.count = mesh.count;
-
-		std::cout << coffee_meshes->vertex_data.size() << std::endl;
-		exit(0);
 	});
 });
 
-PlayMode::PlayMode() : scene(*coffee_scene) {
+PlayMode::PlayMode() : scene(*coffee_scene), mesh_buffer(nullptr) {
+
+	//initialize mesh containers with cout = -1. will assert that mesh.count != -1
+	//later after reading scene data
+	spoon_m.count = -1;
+	table_m.count = -1;
+	mug_body_m.count = -1;
+	mug_handle_m.count = -1;
+	for (auto s : sugar_cubes_m) {
+		s.count = -1;
+	}
+
 	//get pointers to leg for convenience:
 	for (auto &transform : scene.transforms) {
 		if (transform.name == "Spoon") spoon = &transform;
-		else if (transform.name == "UpperLeg.FL") upper_leg = &transform;
-		else if (transform.name == "LowerLeg.FL") lower_leg = &transform;
+		else if (transform.name == "Table") table = &transform;
+		else if (transform.name == "MugBody") mug_body = &transform;
+		else if (transform.name == "MugHandle") mug_handle = &transform;
+		else if (transform.name.find("SugarCube") != std::string::npos) sugar_cubes.push_back(&transform);
 	}
 
-	if (spoon == nullptr) throw std::runtime_error("Spoon not found.");
-	//if (upper_leg == nullptr) throw std::runtime_error("Upper leg not found.");
-	//if (lower_leg == nullptr) throw std::runtime_error("Lower leg not found.");
+	for (auto it = coffee_meshes->meshes.begin(); it != coffee_meshes->meshes.end(); it++)
+	{
+		std::string name_m = it->first;
+		Mesh m = it->second;
+		if (name_m.compare("Spoon") == 0) spoon_m = m;
+		else if (name_m.compare("Table") == 0) table_m = m;
+		else if (name_m.compare("MugBody") == 0) mug_body_m = m;
+		else if (name_m.compare("MugHandle") == 0) mug_handle_m = m;
+		else if (name_m.find("SugarCube") != std::string::npos) sugar_cubes_m.push_back(m);
+	}
 
-	//hip_base_rotation = hip->rotation;
-	//upper_leg_base_rotation = upper_leg->rotation;
-	//lower_leg_base_rotation = lower_leg->rotation;
+	if (spoon == nullptr) throw std::runtime_error("Spoon not found in blender.");
+	if (table == nullptr) throw std::runtime_error("table not found in blender.");
+	if (mug_body == nullptr) throw std::runtime_error("MugBody not found in blender.");
+	if (mug_handle == nullptr) throw std::runtime_error("MugHandle not found in blender.");
+	if (sugar_cubes.size() == 0) throw std::runtime_error("Sugar cubes not found in blender.");
+
+	if (spoon_m.count == -1) throw std::runtime_error("Spoon not found in coffee_meshes->meshes.");
+	if (table_m.count == -1) throw std::runtime_error("table not found in coffee_meshes->meshes.");
+	if (mug_body_m.count == -1) throw std::runtime_error("MugBody not found in coffee_meshes->meshes.");
+	if (mug_handle_m.count == -1) throw std::runtime_error("MugHandle not found in coffee_meshes->meshes.");
+	for (auto s : sugar_cubes_m) {
+		if (s.count == -1) throw std::runtime_error("Sugar cubes not found in coffee_meshes->meshes.");
+	}
 
 	//get pointer to camera for convenience:
 	if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
@@ -139,21 +166,6 @@ void PlayMode::update(float elapsed) {
 	wobble += elapsed / 10.0f;
 	wobble -= std::floor(wobble);
 
-	/*
-	hip->rotation = hip_base_rotation * glm::angleAxis(
-		glm::radians(5.0f * std::sin(wobble * 2.0f * float(M_PI))),
-		glm::vec3(0.0f, 1.0f, 0.0f)
-	);
-	upper_leg->rotation = upper_leg_base_rotation * glm::angleAxis(
-		glm::radians(7.0f * std::sin(wobble * 2.0f * 2.0f * float(M_PI))),
-		glm::vec3(0.0f, 0.0f, 1.0f)
-	);
-	lower_leg->rotation = lower_leg_base_rotation * glm::angleAxis(
-		glm::radians(10.0f * std::sin(wobble * 3.0f * 2.0f * float(M_PI))),
-		glm::vec3(0.0f, 0.0f, 1.0f)
-	);
-	*/
-
 	//move spoon:
 	{
 
@@ -179,6 +191,13 @@ void PlayMode::update(float elapsed) {
 		
 	}
 
+
+	{ // spoon collisions with ground
+
+
+	}
+
+	
 	//reset button press counters:
 	left.downs = 0;
 	right.downs = 0;

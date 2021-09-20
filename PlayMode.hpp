@@ -3,7 +3,7 @@
 #include "Scene.hpp"
 
 #include <glm/glm.hpp>
-
+#include "Mesh.hpp"
 #include <vector>
 #include <deque>
 
@@ -27,10 +27,23 @@ struct PlayMode : Mode {
 	//local copy of the game scene (so code can change it during gameplay):
 	Scene scene;
 
-	//hexapod leg to wobble:
+	//transforms for game objects
 	Scene::Transform *spoon = nullptr;
-	Scene::Transform *upper_leg = nullptr;
-	Scene::Transform *lower_leg = nullptr;
+	Scene::Transform *mug_body = nullptr;
+	Scene::Transform *mug_handle = nullptr;
+	Scene::Transform *table = nullptr;
+	Scene::Transform *sugar_container = nullptr;
+	std::vector < Scene::Transform *> sugar_cubes;
+
+	//mesh data for game objects
+	Mesh spoon_m;
+	Mesh mug_body_m;
+	Mesh mug_handle_m;
+	Mesh table_m;
+	Mesh sugar_container_m;
+	std::vector< Mesh > sugar_cubes_m;
+	MeshBuffer mesh_buffer;
+
 	glm::quat hip_base_rotation;
 	glm::quat upper_leg_base_rotation;
 	glm::quat lower_leg_base_rotation;
