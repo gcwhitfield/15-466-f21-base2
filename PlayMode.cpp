@@ -13,7 +13,7 @@
 #include <random>
 
 GLuint coffee_meshes_for_lit_color_texture_program = 0;
-Load< MeshBuffer > hexapod_meshes(LoadTagDefault, []() -> MeshBuffer const * {
+Load< MeshBuffer > coffee_meshes(LoadTagDefault, []() -> MeshBuffer const * {
 	MeshBuffer const *ret = new MeshBuffer(data_path("coffee.pnct"));
 	coffee_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
 	return ret;
@@ -21,7 +21,7 @@ Load< MeshBuffer > hexapod_meshes(LoadTagDefault, []() -> MeshBuffer const * {
 
 Load< Scene > coffee_scene(LoadTagDefault, []() -> Scene const * {
 	return new Scene(data_path("coffee.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
-		Mesh const &mesh = hexapod_meshes->lookup(mesh_name);
+		Mesh const &mesh = coffee_meshes->lookup(mesh_name);
 
 		scene.drawables.emplace_back(transform);
 		Scene::Drawable &drawable = scene.drawables.back();
@@ -33,6 +33,8 @@ Load< Scene > coffee_scene(LoadTagDefault, []() -> Scene const * {
 		drawable.pipeline.start = mesh.start;
 		drawable.pipeline.count = mesh.count;
 
+		std::cout << coffee_meshes->vertex_data.size() << std::endl;
+		exit(0);
 	});
 });
 

@@ -14,7 +14,7 @@
 #include <map>
 #include <limits>
 #include <string>
-
+#include <vector>
 
 struct Mesh {
 	//Meshes are vertex ranges (and primitive types) in their MeshBuffer:
@@ -45,6 +45,15 @@ struct MeshBuffer {
 	//This is the OpenGL vertex buffer object containing the mesh data:
 	GLuint buffer = 0;
 
+	struct Vertex {
+		glm::vec3 Position;
+		glm::vec3 Normal;
+		glm::u8vec4 Color;
+		glm::vec2 TexCoord;
+	};
+
+	//This is a copy of the contents of the vertex buffer
+	std::vector < Vertex > vertex_data;
 	//-- internals ---
 
 	//used by the lookup() function:

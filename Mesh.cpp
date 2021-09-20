@@ -18,12 +18,6 @@ MeshBuffer::MeshBuffer(std::string const &filename) {
 
 	GLuint total = 0;
 
-	struct Vertex {
-		glm::vec3 Position;
-		glm::vec3 Normal;
-		glm::u8vec4 Color;
-		glm::vec2 TexCoord;
-	};
 	static_assert(sizeof(Vertex) == 3*4+3*4+4*1+2*4, "Vertex is packed.");
 	std::vector< Vertex > data;
 
@@ -31,6 +25,8 @@ MeshBuffer::MeshBuffer(std::string const &filename) {
 	if (filename.size() >= 5 && filename.substr(filename.size()-5) == ".pnct") {
 		read_chunk(file, "pnct", &data);
 
+		vertex_data = data;
+		
 		//upload data:
 		glBindBuffer(GL_ARRAY_BUFFER, buffer);
 		glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(Vertex), data.data(), GL_STATIC_DRAW);
