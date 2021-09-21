@@ -1,8 +1,9 @@
-# (TODO: your game's title)
+# Coffee Conundrum
 
-Author: (TODO: your name)
+Author: George Whitfield (gwhitfie)
 
-Design: (TODO: In two sentences or fewer, describe what is new and interesting about your game.)
+Design: You are an amature home cook and you try to make your own coffee. 
+But you need to add tons sugar to mask the taste because you actually hate coffee.
 
 Screen Shot:
 
@@ -10,13 +11,18 @@ Screen Shot:
 
 How Your Asset Pipeline Works:
 
-(TODO: describe the steps in your asset pipeline, from source files to tiles/backgrounds/whatever you upload to the PPU466.)
+1) Scenes built in blender
+2) Texture colors, positions, rotations, stored in mesh data
+3) Blender scene exported to .pnct file
+4) .pnct imported into game, converted into data to be used in game
 
 How To Play:
 
-(TODO: describe the controls and (if needed) goals/strategy.)
+Press the A key to move the mug left, D to move the mug right.
 
-Sources: (TODO: list a source URL for any assets you did not create yourself. Make sure you have a license for the asset.)
+Collect 25 sugar cubes to win.
+
+The score is displayed in the top left corner of the screen.
 
 This game was built with [NEST](NEST.md).
 

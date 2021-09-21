@@ -212,7 +212,7 @@ void PlayMode::update(float elapsed) {
 							curr_state = WIN;
 						}
 					}
-					s->position = glm::vec3(table->position.x, mug_body->position.y, mug_body->position.z + rand() % 10 + 10);
+					s->position = glm::vec3(table->position.x + rand() % 8, mug_body->position.y, mug_body->position.z + rand() % 10 + 20);
 				}
 			}
 		}
