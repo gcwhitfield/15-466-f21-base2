@@ -24,5 +24,7 @@ Collect 25 sugar cubes to win.
 
 The score is displayed in the top left corner of the screen.
 
+Use the mouse to move the mug around for fun!
+
 This game was built with [NEST](NEST.md).
 
