@@ -168,116 +168,54 @@ void PlayMode::update(float elapsed) {
 	wobble += elapsed / 10.0f;
 	wobble -= std::floor(wobble);
 
-	//move spoon:
+	if (curr_state == GAMEPLAY)
 	{
-
-		//combine inputs into a move:
-		constexpr float PlayerSpeed = 10.0f;
-		(void)PlayerSpeed;
-		glm::vec2 move = glm::vec2(0.0f);
-		if (left.pressed && !right.pressed) move.x =-1.0f;
-		if (!left.pressed && right.pressed) move.x = 1.0f;
-		if (down.pressed && !up.pressed) move.y =-1.0f;
-		if (!down.pressed && up.pressed) move.y = 1.0f;
-
-		//make it so that moving diagonally doesn't go faster:
-		
-		if (move != glm::vec2(0.0f)) move = glm::normalize(move) * PlayerSpeed * elapsed;
-
-		/*
-		glm::mat4x3 frame = spoon->make_local_to_world();
-		glm::vec3 right = frame[0];
-		glm::vec3 up = frame[1];
-		glm::vec3 forward = -frame[2];
-		*/
-
-		//mug_body->position += move.x * right + move.y * forward;
-		mug_body->position += glm::vec3(move.x, 0, 0);
-		
-	}
-
-	{ // spoon collisions with ground
-
-		// std::cout << (mesh_buffer.vertex_data[spoon_m.start].Position * spoon->make_local_to_world()).y + spoon->position.y  << std::endl;
-		
-		/*for (size_t i = spoon_m.start; i < spoon_m.count + spoon_m.start; i++)
+		//move mug:
 		{
-			if ((mesh_buffer.vertex_data[i].Position * spoon->make_local_to_world()).y < 0) 
-			{
-				std::cout << "spoon below y = 0!" << std::endl;
-			}
-		}
-		*/
-	}
 
-	{ // sugarcubes raining down from the sky
+			//combine inputs into a move:
+			constexpr float PlayerSpeed = 10.0f;
+			(void)PlayerSpeed;
+			glm::vec2 move = glm::vec2(0.0f);
+			if (left.pressed && !right.pressed) move.x =-1.0f;
+			if (!left.pressed && right.pressed) move.x = 1.0f;
+			if (down.pressed && !up.pressed) move.y =-1.0f;
+			if (!down.pressed && up.pressed) move.y = 1.0f;
 
-		std::vector < Scene::Transform * > t_to_remove;
-		std::vector < Scene::Transform * > t_to_add;
-		t_to_remove.clear();
-		t_to_add.clear();
-		for (Scene::Transform *s : sugar_cubes)
-		{
-			s->position.z -= elapsed * 5;
+			//make it so that moving diagonally doesn't go faster:
 			
-			// move the cube back up if it touches the floor
-			if (s->position.z < 0)
-			{			
-				// add points if the player collected the cube in the cup
-				if (abs(s->position.x - mug_body->position.x) < 1)
-				{
-					score++;
-					std::cout << score << std::endl;
-				}
-				s->position = glm::vec3(table->position.x, mug_body->position.y, mug_body->position.z + rand() % 10 + 10);
-			}
+			if (move != glm::vec2(0.0f)) move = glm::normalize(move) * PlayerSpeed * elapsed;
+			mug_body->position += glm::vec3(move.x, 0, 0);
+			
 		}
-	
-				/*
-				for (auto drawable = scene.drawables.begin(); drawable != scene.drawables.end(); drawable++)
-				{
-					if (drawable->transform == s)
-					{
 
-						Scene::Transform *trans = drawable->transform;
-						trans->position = glm::vec3(mug_body->position.x, mug_body->position.y, mug_body->position.z + 2);
-						t_to_remove.push_back(trans);
-						
-						Scene::Transform *t = new Scene::Transform();
-						t->name = "SugarCube" + std::to_string(sugar_cubes.size());
-						t->position = glm::vec3(mug_body->position.x, mug_body->position.y, mug_body->position.z + 15);
-						t->rotation = glm::quat(0, 0, 0, 0);
-						t->scale = trans->scale;
-						t_to_add.push_back(t);
-						// Scene::Drawable *new_drawable = new Scene::Drawable(t);
-						// creating new drawable code inspired by Alyssa from 
-						// last year's game programming class
-						// https://github.com/lassyla/game2/blob/master/PlayMode.cpp
-						scene.drawables.push_back(t);
-						Scene::Drawable new_drawable = scene.drawables.back();
-						new_drawable.pipeline = lit_color_texture_program_pipeline;
-						new_drawable.pipeline.program = lit_color_texture_program_pipeline.program;
-						new_drawable.pipeline.vao = coffee_meshes_for_lit_color_texture_program;
-						new_drawable.pipeline.type = sugar_ref_m.type;
-						new_drawable.pipeline.start = sugar_ref_m.start;
-						new_drawable.pipeline.count = sugar_ref_m.count;
-					
-						// scene.drawables.erase(drawable);
-						break;
-					}
-				}
+		{ // sugarcubes raining down from the sky
+
+			std::vector < Scene::Transform * > t_to_remove;
+			std::vector < Scene::Transform * > t_to_add;
+			t_to_remove.clear();
+			t_to_add.clear();
+			for (Scene::Transform *s : sugar_cubes)
+			{
+				s->position.z -= elapsed * 5;
 				
+				// move the cube back up if it touches the floor
+				if (s->position.z < 0)
+				{			
+					// add points if the player collected the cube in the cup
+					if (abs(s->position.x - mug_body->position.x) < 1)
+					{
+						score++;
+						std::cout << score << std::endl;
+						if (score > 25)
+						{
+							curr_state = WIN;
+						}
+					}
+					s->position = glm::vec3(table->position.x, mug_body->position.y, mug_body->position.z + rand() % 10 + 10);
+				}
 			}
 		}
-		for (Scene::Transform *t : t_to_remove)
-		{
-			sugar_cubes.remove(t);
-		}
-		for (Scene::Transform *t : t_to_add)
-		{
-			sugar_cubes.push_back(t);
-		}
-		*/
 	}
 
 	//reset button press counters:
@@ -321,30 +259,43 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 		));
 
 		constexpr float H = 0.09f;
-		//draw game instructions
+		if (curr_state == GAMEPLAY)
 		{
-			lines.draw_text("A and D move the cup left and right. Collect 25 sugar cubes to make your coffee and win!",
-				glm::vec3(-aspect + 0.1f * H, -1.0 + 0.1f * H, 0.0),
-				glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
-				glm::u8vec4(0x00, 0x00, 0x00, 0x00));
-			float ofs = 2.0f / drawable_size.y;
-			lines.draw_text("A and D move the cup left and right. Collect 25 sugar cubes to make your coffee and win!",
-				glm::vec3(-aspect + 0.1f * H + ofs, -1.0 + + 0.1f * H + ofs, 0.0),
-				glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
-				glm::u8vec4(0xff, 0xff, 0xff, 0x00));
-		}
+			//draw game instructions
+			{
+				lines.draw_text("A and D move the cup left and right. Collect 25 sugar cubes to make your coffee and win!",
+					glm::vec3(-aspect + 0.1f * H, -1.0 + 0.1f * H, 0.0),
+					glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+					glm::u8vec4(0x00, 0x00, 0x00, 0x00));
+				float ofs = 2.0f / drawable_size.y;
+				lines.draw_text("A and D move the cup left and right. Collect 25 sugar cubes to make your coffee and win!",
+					glm::vec3(-aspect + 0.1f * H + ofs, -1.0 + + 0.1f * H + ofs, 0.0),
+					glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+					glm::u8vec4(0xff, 0xff, 0xff, 0x00));
+			}
 
-		//draw score
-		{
-			lines.draw_text(std::to_string(score),
-				glm::vec3(-aspect + 0.1f * H, -1.0 + 0.1f * H + 1.8f, 0.0),
-				glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
-				glm::u8vec4(0x00, 0x00, 0x00, 0x00));
-			float ofs = 2.0f / drawable_size.y;
-			lines.draw_text(std::to_string(score),
-				glm::vec3(-aspect + 0.1f * H + ofs, -1.0 + + 0.1f * H + ofs + 1.8f, 0.0),
-				glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
-				glm::u8vec4(0xff, 0xff, 0xff, 0x00));
+			//draw score
+			{
+				lines.draw_text(std::to_string(score),
+					glm::vec3(-aspect + 0.1f * H, -1.0 + 0.1f * H + 1.8f, 0.0),
+					glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+					glm::u8vec4(0x00, 0x00, 0x00, 0x00));
+				float ofs = 2.0f / drawable_size.y;
+				lines.draw_text(std::to_string(score),
+					glm::vec3(-aspect + 0.1f * H + ofs, -1.0 + + 0.1f * H + ofs + 1.8f, 0.0),
+					glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+					glm::u8vec4(0xff, 0xff, 0xff, 0x00));
+			}
+		} else {
+			lines.draw_text("You win!",
+					glm::vec3(-aspect + 0.1f * H + 1.0f, -1.0 + 0.1f * H + 1.0f, 0.0),
+					glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+					glm::u8vec4(0x00, 0x00, 0x00, 0x00));
+				float ofs = 2.0f / drawable_size.y;
+				lines.draw_text("You win!",
+					glm::vec3(-aspect + 0.1f * H + ofs + 1.0f, -1.0 + + 0.1f * H + ofs + 1.0f, 0.0),
+					glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+					glm::u8vec4(0xff, 0xff, 0xff, 0x00));
 		}
 	}
 }

@@ -18,7 +18,16 @@ struct PlayMode : Mode {
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 
 	//----- game state -----
+	enum GameState
+	{
+		GAMEPLAY,
+		WIN
+	};
+
+	GameState curr_state = GAMEPLAY;
+
 	unsigned int score = 0; //incrased when the player collets a sugar cube
+	
 
 	//input tracking:
 	struct Button {
