@@ -148,20 +148,11 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				evt.motion.xrel / float(window_size.y),
 				-evt.motion.yrel / float(window_size.y)
 			);
-			/*
-			{ // move the camera according to the mouse movement
-				camera->transform->rotation = glm::normalize(
-					camera->transform->rotation
-					* glm::angleAxis(-motion.x * camera->fovy, glm::vec3(0.0f, 1.0f, 0.0f))
-					* glm::angleAxis(motion.y * camera->fovy, glm::vec3(1.0f, 0.0f, 0.0f))
-				);
-			}
-			*/
-			{ // rotate spoon according to mouse movement
-				spoon->rotation = glm::normalize(
-					spoon->rotation
-					* glm::angleAxis(-motion.x, glm::vec3(0.0f, 1.0f, 0.0f))
-					* glm::angleAxis(motion.y, glm::vec3(1.0f, 0.0f, 0.0f))
+			{ // rotate mug according to mouse movement
+				mug_body->rotation = glm::normalize(
+					mug_body->rotation
+					* glm::angleAxis(-motion.x, glm::vec3(0.0f, 0.0f, 1.0f))
+					//* glm::angleAxis(motion.y, glm::vec3(1.0f, 0.0f, 0.0f))
 				);
 			}
 			return true;
@@ -221,12 +212,6 @@ void PlayMode::update(float elapsed) {
 
 	{ // sugarcubes raining down from the sky
 
-		sugar_cube_spawn_timer -= elapsed;
-		if (sugar_cube_spawn_timer < 0)
-		{
-			sugar_cube_spawn_timer = 1;
-		}
-
 		std::vector < Scene::Transform * > t_to_remove;
 		std::vector < Scene::Transform * > t_to_add;
 		t_to_remove.clear();
@@ -235,9 +220,20 @@ void PlayMode::update(float elapsed) {
 		{
 			s->position.z -= elapsed * 5;
 			
-			// delete the cube if it touches the floor
+			// move the cube back up if it touches the floor
 			if (s->position.z < 0)
 			{			
+				// add points if the player collected the cube in the cup
+				if (abs(s->position.x - mug_body->position.x) < 1)
+				{
+					score++;
+					std::cout << score << std::endl;
+				}
+				s->position = glm::vec3(mug_body->position.x, mug_body->position.y, mug_body->position.z + rand() % 10 + 10);
+			}
+		}
+	
+				/*
 				for (auto drawable = scene.drawables.begin(); drawable != scene.drawables.end(); drawable++)
 				{
 					if (drawable->transform == s)
@@ -253,7 +249,7 @@ void PlayMode::update(float elapsed) {
 						t->rotation = glm::quat(0, 0, 0, 0);
 						t->scale = trans->scale;
 						t_to_add.push_back(t);
-						//Scene::Drawable *new_drawable = new Scene::Drawable(t);
+						// Scene::Drawable *new_drawable = new Scene::Drawable(t);
 						// creating new drawable code inspired by Alyssa from 
 						// last year's game programming class
 						// https://github.com/lassyla/game2/blob/master/PlayMode.cpp
@@ -265,28 +261,25 @@ void PlayMode::update(float elapsed) {
 						new_drawable.pipeline.type = sugar_ref_m.type;
 						new_drawable.pipeline.start = sugar_ref_m.start;
 						new_drawable.pipeline.count = sugar_ref_m.count;
-
+					
 						// scene.drawables.erase(drawable);
-						
 						break;
 					}
 				}
 				
 			}
 		}
-		/*
 		for (Scene::Transform *t : t_to_remove)
 		{
 			sugar_cubes.remove(t);
 		}
-		*/
 		for (Scene::Transform *t : t_to_add)
 		{
 			sugar_cubes.push_back(t);
 		}
+		*/
 	}
 
-	std::cout << sugar_cubes.front()->position.x << " " << sugar_cubes.front()->position.y << " " << sugar_cubes.front()->position.z << std::endl;;
 	//reset button press counters:
 	left.downs = 0;
 	right.downs = 0;

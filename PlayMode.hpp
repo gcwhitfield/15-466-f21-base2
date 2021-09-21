@@ -18,7 +18,8 @@ struct PlayMode : Mode {
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 
 	//----- game state -----
-	float sugar_cube_spawn_timer = 0;
+	unsigned int score = 0; //incrased when the player collets a sugar cube
+
 	//input tracking:
 	struct Button {
 		uint8_t downs = 0;
