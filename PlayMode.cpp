@@ -35,8 +35,9 @@ Load< Scene > coffee_scene(LoadTagDefault, []() -> Scene const * {
 	});
 });
 
-PlayMode::PlayMode() : scene(*coffee_scene), mesh_buffer(nullptr) {
+PlayMode::PlayMode() : scene(*coffee_scene), mesh_buffer("") {
 
+	mesh_buffer = (*coffee_meshes);
 	//initialize mesh containers with cout = -1. will assert that mesh.count != -1
 	//later after reading scene data
 	spoon_m.count = -1;
@@ -191,10 +192,38 @@ void PlayMode::update(float elapsed) {
 		
 	}
 
-
 	{ // spoon collisions with ground
 
+		std::cout << (mesh_buffer.vertex_data[spoon_m.start].Position * spoon->make_local_to_world()).y + spoon->position.y  << std::endl;
+		
+		/*for (size_t i = spoon_m.start; i < spoon_m.count + spoon_m.start; i++)
+		{
+			if ((mesh_buffer.vertex_data[i].Position * spoon->make_local_to_world()).y < 0) 
+			{
+				std::cout << "spoon below y = 0!" << std::endl;
+			}
+		}
+		*/
+	}
 
+	{ // sugarcubes raining down from the sky
+		for (Scene::Transform *s : sugar_cubes)
+		{
+			s->position.z -= elapsed * 0.2f;
+			
+			// delete the cube if it touches the floor
+			if (s->position.z < 0)
+			{
+				for (auto drawable = scene.drawables.begin(); drawable != scene.drawables.end(); drawable++)
+				{
+					if (drawable->transform == s)
+					{
+						scene.drawables.erase(drawable);
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	

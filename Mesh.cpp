@@ -12,6 +12,11 @@
 #include <cstddef>
 
 MeshBuffer::MeshBuffer(std::string const &filename) {
+	if (filename == "")
+	{
+		return;
+	}
+	
 	glGenBuffers(1, &buffer);
 
 	std::ifstream file(filename, std::ios::binary);
