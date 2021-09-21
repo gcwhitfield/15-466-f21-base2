@@ -6,6 +6,7 @@
 #include "Mesh.hpp"
 #include <vector>
 #include <deque>
+#include <random>
 
 struct PlayMode : Mode {
 	PlayMode();
@@ -17,7 +18,7 @@ struct PlayMode : Mode {
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 
 	//----- game state -----
-
+	float sugar_cube_spawn_timer = 0;
 	//input tracking:
 	struct Button {
 		uint8_t downs = 0;
@@ -33,7 +34,9 @@ struct PlayMode : Mode {
 	Scene::Transform *mug_handle = nullptr;
 	Scene::Transform *table = nullptr;
 	Scene::Transform *sugar_container = nullptr;
-	std::vector < Scene::Transform *> sugar_cubes;
+
+	Scene::Drawable sugar_ref;
+	std::list < Scene::Transform *> sugar_cubes;
 
 	//mesh data for game objects
 	Mesh spoon_m;
@@ -41,7 +44,8 @@ struct PlayMode : Mode {
 	Mesh mug_handle_m;
 	Mesh table_m;
 	Mesh sugar_container_m;
-	std::vector< Mesh > sugar_cubes_m;
+	Mesh sugar_ref_m;
+	std::list< Mesh > sugar_cubes_m;
 	MeshBuffer mesh_buffer;
 
 	glm::quat hip_base_rotation;

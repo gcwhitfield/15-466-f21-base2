@@ -35,9 +35,10 @@ Load< Scene > coffee_scene(LoadTagDefault, []() -> Scene const * {
 	});
 });
 
-PlayMode::PlayMode() : scene(*coffee_scene), mesh_buffer("") {
+PlayMode::PlayMode() : scene(*coffee_scene), sugar_ref(new Scene::Transform()), mesh_buffer("") {
 
 	mesh_buffer = (*coffee_meshes);
+
 	//initialize mesh containers with cout = -1. will assert that mesh.count != -1
 	//later after reading scene data
 	spoon_m.count = -1;
@@ -65,6 +66,7 @@ PlayMode::PlayMode() : scene(*coffee_scene), mesh_buffer("") {
 		else if (name_m.compare("Table") == 0) table_m = m;
 		else if (name_m.compare("MugBody") == 0) mug_body_m = m;
 		else if (name_m.compare("MugHandle") == 0) mug_handle_m = m;
+		else if (name_m.compare("SugarRef") == 0) sugar_ref_m = m;
 		else if (name_m.find("SugarCube") != std::string::npos) sugar_cubes_m.push_back(m);
 	}
 
@@ -80,6 +82,14 @@ PlayMode::PlayMode() : scene(*coffee_scene), mesh_buffer("") {
 	if (mug_handle_m.count == -1) throw std::runtime_error("MugHandle not found in coffee_meshes->meshes.");
 	for (auto s : sugar_cubes_m) {
 		if (s.count == -1) throw std::runtime_error("Sugar cubes not found in coffee_meshes->meshes.");
+	}
+
+	for (Scene::Drawable const &drawable : scene.drawables)
+	{
+		if (drawable.pipeline.start == sugar_ref_m.start && drawable.pipeline.count == sugar_ref_m.count)
+		{
+			sugar_ref = drawable;
+		}
 	}
 
 	//get pointer to camera for convenience:
@@ -171,7 +181,7 @@ void PlayMode::update(float elapsed) {
 	{
 
 		//combine inputs into a move:
-		constexpr float PlayerSpeed = 30.0f;
+		constexpr float PlayerSpeed = 10.0f;
 		(void)PlayerSpeed;
 		glm::vec2 move = glm::vec2(0.0f);
 		if (left.pressed && !right.pressed) move.x =-1.0f;
@@ -183,18 +193,21 @@ void PlayMode::update(float elapsed) {
 		
 		if (move != glm::vec2(0.0f)) move = glm::normalize(move) * PlayerSpeed * elapsed;
 
+		/*
 		glm::mat4x3 frame = spoon->make_local_to_world();
 		glm::vec3 right = frame[0];
-		//glm::vec3 up = frame[1];
+		glm::vec3 up = frame[1];
 		glm::vec3 forward = -frame[2];
+		*/
 
-		spoon->position += move.x * right + move.y * forward;
+		//mug_body->position += move.x * right + move.y * forward;
+		mug_body->position += glm::vec3(move.x, 0, 0);
 		
 	}
 
 	{ // spoon collisions with ground
 
-		std::cout << (mesh_buffer.vertex_data[spoon_m.start].Position * spoon->make_local_to_world()).y + spoon->position.y  << std::endl;
+		// std::cout << (mesh_buffer.vertex_data[spoon_m.start].Position * spoon->make_local_to_world()).y + spoon->position.y  << std::endl;
 		
 		/*for (size_t i = spoon_m.start; i < spoon_m.count + spoon_m.start; i++)
 		{
@@ -207,26 +220,73 @@ void PlayMode::update(float elapsed) {
 	}
 
 	{ // sugarcubes raining down from the sky
+
+		sugar_cube_spawn_timer -= elapsed;
+		if (sugar_cube_spawn_timer < 0)
+		{
+			sugar_cube_spawn_timer = 1;
+		}
+
+		std::vector < Scene::Transform * > t_to_remove;
+		std::vector < Scene::Transform * > t_to_add;
+		t_to_remove.clear();
+		t_to_add.clear();
 		for (Scene::Transform *s : sugar_cubes)
 		{
-			s->position.z -= elapsed * 0.2f;
+			s->position.z -= elapsed * 5;
 			
 			// delete the cube if it touches the floor
 			if (s->position.z < 0)
-			{
+			{			
 				for (auto drawable = scene.drawables.begin(); drawable != scene.drawables.end(); drawable++)
 				{
 					if (drawable->transform == s)
 					{
-						scene.drawables.erase(drawable);
+
+						Scene::Transform *trans = drawable->transform;
+						trans->position = glm::vec3(mug_body->position.x, mug_body->position.y, mug_body->position.z + 2);
+						t_to_remove.push_back(trans);
+						
+						Scene::Transform *t = new Scene::Transform();
+						t->name = "SugarCube" + std::to_string(sugar_cubes.size());
+						t->position = glm::vec3(mug_body->position.x, mug_body->position.y, mug_body->position.z + 15);
+						t->rotation = glm::quat(0, 0, 0, 0);
+						t->scale = trans->scale;
+						t_to_add.push_back(t);
+						//Scene::Drawable *new_drawable = new Scene::Drawable(t);
+						// creating new drawable code inspired by Alyssa from 
+						// last year's game programming class
+						// https://github.com/lassyla/game2/blob/master/PlayMode.cpp
+						scene.drawables.push_back(t);
+						Scene::Drawable new_drawable = scene.drawables.back();
+						new_drawable.pipeline = lit_color_texture_program_pipeline;
+						new_drawable.pipeline.program = lit_color_texture_program_pipeline.program;
+						new_drawable.pipeline.vao = coffee_meshes_for_lit_color_texture_program;
+						new_drawable.pipeline.type = sugar_ref_m.type;
+						new_drawable.pipeline.start = sugar_ref_m.start;
+						new_drawable.pipeline.count = sugar_ref_m.count;
+
+						// scene.drawables.erase(drawable);
+						
 						break;
 					}
 				}
+				
 			}
+		}
+		/*
+		for (Scene::Transform *t : t_to_remove)
+		{
+			sugar_cubes.remove(t);
+		}
+		*/
+		for (Scene::Transform *t : t_to_add)
+		{
+			sugar_cubes.push_back(t);
 		}
 	}
 
-	
+	std::cout << sugar_cubes.front()->position.x << " " << sugar_cubes.front()->position.y << " " << sugar_cubes.front()->position.z << std::endl;;
 	//reset button press counters:
 	left.downs = 0;
 	right.downs = 0;
