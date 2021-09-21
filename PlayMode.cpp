@@ -46,6 +46,7 @@ PlayMode::PlayMode() : scene(*coffee_scene), sugar_ref(new Scene::Transform()), 
 	mug_body_m.count = -1;
 	mug_handle_m.count = -1;
 	for (auto s : sugar_cubes_m) {
+		(void)(s);
 		s.count = -1;
 	}
 
