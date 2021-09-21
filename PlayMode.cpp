@@ -76,12 +76,12 @@ PlayMode::PlayMode() : scene(*coffee_scene), sugar_ref(new Scene::Transform()), 
 	if (mug_handle == nullptr) throw std::runtime_error("MugHandle not found in blender.");
 	if (sugar_cubes.size() == 0) throw std::runtime_error("Sugar cubes not found in blender.");
 
-	if (spoon_m.count == -1) throw std::runtime_error("Spoon not found in coffee_meshes->meshes.");
-	if (table_m.count == -1) throw std::runtime_error("table not found in coffee_meshes->meshes.");
-	if (mug_body_m.count == -1) throw std::runtime_error("MugBody not found in coffee_meshes->meshes.");
-	if (mug_handle_m.count == -1) throw std::runtime_error("MugHandle not found in coffee_meshes->meshes.");
+	if (spoon_m.count == (GLuint)-1) throw std::runtime_error("Spoon not found in coffee_meshes->meshes.");
+	if (table_m.count == (GLuint)-1) throw std::runtime_error("table not found in coffee_meshes->meshes.");
+	if (mug_body_m.count == (GLuint)-1) throw std::runtime_error("MugBody not found in coffee_meshes->meshes.");
+	if (mug_handle_m.count == (GLuint)-1) throw std::runtime_error("MugHandle not found in coffee_meshes->meshes.");
 	for (auto s : sugar_cubes_m) {
-		if (s.count == -1) throw std::runtime_error("Sugar cubes not found in coffee_meshes->meshes.");
+		if (s.count == (GLuint)-1) throw std::runtime_error("Sugar cubes not found in coffee_meshes->meshes.");
 	}
 
 	for (Scene::Drawable const &drawable : scene.drawables)
